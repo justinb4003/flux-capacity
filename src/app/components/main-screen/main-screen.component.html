@@ -1,0 +1,41 @@
+<form>
+    <mat-form-field>
+        <mat-label>Client</mat-label>
+        <input type="text"
+            placeholder="Client"
+            matInput
+            [formControl]="inputClient"
+            [matAutocomplete]="autoClient">
+        <mat-autocomplete #autoClient="matAutocomplete">
+            <mat-option *ngFor="let c of filteredClients | async" [value]="c">
+                {{c}}
+            </mat-option>
+        </mat-autocomplete>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>Task</mat-label>
+        <input type="text"
+            placeholder="Task"
+            matInput
+            [formControl]="inputTask"
+            [matAutocomplete]="autoTask">
+        <mat-autocomplete #autoTask="matAutocomplete">
+            <mat-option *ngFor="let t of filteredTasks | async" [value]="t">
+                {{t}}
+            </mat-option>
+        </mat-autocomplete>
+    </mat-form-field>
+    <button mat-raised-button type="button" color="primary"
+        (click)="actionButton()"
+    >{{actionButtonLabel}}</button>
+</form>
+<mat-list>
+    <mat-list-item *ngFor="let te of this.entries">
+        {{te.client}} {{te.task}}
+        {{te.startTime}}
+        <button mat-icon-button>
+            <mat-icon
+                (click)="startEntry($event, te.entryUuid)">play_circle</mat-icon>
+        </button>
+    </mat-list-item>
+</mat-list>
