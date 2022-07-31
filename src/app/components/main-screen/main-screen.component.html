@@ -1,41 +1,70 @@
-<form>
-    <mat-form-field>
-        <mat-label>Client</mat-label>
-        <input type="text"
-            placeholder="Client"
-            matInput
-            [formControl]="inputClient"
-            [matAutocomplete]="autoClient">
-        <mat-autocomplete #autoClient="matAutocomplete">
-            <mat-option *ngFor="let c of filteredClients | async" [value]="c">
-                {{c}}
-            </mat-option>
-        </mat-autocomplete>
-    </mat-form-field>
-    <mat-form-field>
-        <mat-label>Task</mat-label>
-        <input type="text"
-            placeholder="Task"
-            matInput
-            [formControl]="inputTask"
-            [matAutocomplete]="autoTask">
-        <mat-autocomplete #autoTask="matAutocomplete">
-            <mat-option *ngFor="let t of filteredTasks | async" [value]="t">
-                {{t}}
-            </mat-option>
-        </mat-autocomplete>
-    </mat-form-field>
-    <button mat-raised-button type="button" color="primary"
-        (click)="actionButton()"
-    >{{actionButtonLabel}}</button>
-</form>
-<mat-list>
-    <mat-list-item *ngFor="let te of this.entries">
-        {{te.client}} {{te.task}}
-        {{te.startTime}}
-        <button mat-icon-button>
-            <mat-icon
-                (click)="startEntry($event, te.entryUuid)">play_circle</mat-icon>
-        </button>
-    </mat-list-item>
-</mat-list>
+<div>
+    <form>
+        <mat-form-field class="new-entry-input">
+            <mat-label>Client</mat-label>
+            <input type="text"
+                placeholder="Client"
+                matInput
+                [formControl]="inputClient"
+                [matAutocomplete]="autoClient">
+            <mat-autocomplete #autoClient="matAutocomplete">
+                <mat-option *ngFor="let c of filteredClients | async" [value]="c">
+                    {{c}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field class="new-entry-input">
+            <mat-label>Task</mat-label>
+            <input type="text"
+                placeholder="Task"
+                matInput
+                [formControl]="inputTask"
+                [matAutocomplete]="autoTask">
+            <mat-autocomplete #autoTask="matAutocomplete">
+                <mat-option *ngFor="let t of filteredTasks | async" [value]="t">
+                    {{t}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <button mat-raised-button type="button" color="primary" class="new-entry-input"
+            (click)="actionButton()"
+        >{{actionButtonLabel}}</button>
+    </form>
+</div>
+<div>
+    <ng-container *ngFor="let te of this.sortedEntries">
+        <mat-card class="time-entry-card mat-elevation-z4" *ngIf="te.parentEntryUuid == null">
+            <mat-card-title>
+                {{te.client}} {{te.task}}
+            </mat-card-title>
+            <mat-card-subtitle>
+                {{ this.calcTimeEntryDuration(te).hours}} hours
+                {{ this.calcTimeEntryDuration(te).minutes}} minutes
+            </mat-card-subtitle>
+            <mat-card-content>
+                <div>
+                    {{te.startTime | date:'medium'}}
+                    {{te.endTime | date:'medium'}}
+                </div>
+                <div *ngFor="let se of this.subEntries(te.entryUuid)">
+                    {{se.startTime | date:'medium'}}
+                    {{se.endTime | date:'medium'}}
+                </div>
+            </mat-card-content>
+            <mat-card-actions>
+                <button mat-icon-button>
+                    <mat-icon
+                        (click)="startEntry($event, te.entryUuid)">play_circle</mat-icon>
+                </button>
+                <button mat-icon-button>
+                    <mat-icon
+                        (click)="editEntry($event, te.entryUuid)">edit</mat-icon>
+                </button>
+                <button mat-icon-button>
+                    <mat-icon
+                        (click)="deleteEntry($event, te.entryUuid)">delete</mat-icon>
+                </button>
+            </mat-card-actions>
+        </mat-card>
+    </ng-container>
+</div>

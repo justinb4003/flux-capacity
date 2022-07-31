@@ -5,3 +5,7 @@ export interface TimeEntry {
     client: string;
     task: string;
 }
+
+export interface TimeEntryLinked extends TimeEntry {
+    parentEntryUuid: string | null;
+}
