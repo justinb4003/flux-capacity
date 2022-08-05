@@ -1,4 +1,6 @@
 <div>
+    <button mat-raised-button type="button" color="primary" class="new-entry-input"
+        (click)="dumpDebug()">Debug Dump</button>
     <form>
         <mat-form-field class="new-entry-input">
             <mat-label>Client</mat-label>
@@ -45,24 +47,32 @@
                 <div>
                     {{te.startTime | date:'medium'}}
                     {{te.endTime | date:'medium'}}
+                    <button mat-icon-button>
+                        <mat-icon
+                            (click)="editEntry($event, te.entryUuid)">edit</mat-icon>
+                    </button>
+                    <button mat-icon-button>
+                        <mat-icon
+                            (click)="deleteEntry($event, te.entryUuid)">delete</mat-icon>
+                    </button>
                 </div>
                 <div *ngFor="let se of this.subEntries(te.entryUuid)">
                     {{se.startTime | date:'medium'}}
                     {{se.endTime | date:'medium'}}
+                    <button mat-icon-button>
+                        <mat-icon
+                            (click)="editEntry($event, se.entryUuid)">edit</mat-icon>
+                    </button>
+                    <button mat-icon-button>
+                        <mat-icon
+                            (click)="deleteEntry($event, se.entryUuid)">delete</mat-icon>
+                    </button>
                 </div>
             </mat-card-content>
             <mat-card-actions>
                 <button mat-icon-button>
                     <mat-icon
                         (click)="startEntry($event, te.entryUuid)">play_circle</mat-icon>
-                </button>
-                <button mat-icon-button>
-                    <mat-icon
-                        (click)="editEntry($event, te.entryUuid)">edit</mat-icon>
-                </button>
-                <button mat-icon-button>
-                    <mat-icon
-                        (click)="deleteEntry($event, te.entryUuid)">delete</mat-icon>
                 </button>
             </mat-card-actions>
         </mat-card>

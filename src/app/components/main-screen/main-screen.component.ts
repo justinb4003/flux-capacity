@@ -1,45 +1,48 @@
-import { Component, OnInit, AfterViewInit, Attribute } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { TimeEntry, TimeEntryLinked } from 'src/app/shared/models/TimeEntry.model';
 import { v4 as uuidv4 } from 'uuid';
-import { intervalToDuration } from 'date-fns';
+import { intervalToDuration, Duration } from 'date-fns';
 import * as _ from 'lodash';
 
 @Component({
   selector: 'app-main-screen',
   templateUrl: './main-screen.component.html',
-  styleUrls: ['./main-screen.component.scss']
+  styleUrls: ['./main-screen.component.scss'],
 })
 export class MainScreenComponent implements OnInit, AfterViewInit {
-
   public clients: string[] = [
-      'OurAbility',
-      'Acrisure',
-      'Internal',
-      'FirstGroup',
-    ];
+    'OurAbility',
+    'Acrisure',
+    'Internal',
+    'FirstGroup',
+  ];
 
   public tasks: string[] = [];
 
   public entries: TimeEntry[] = [
     {
-      entryUuid: uuidv4(),
+      // entryUuid: uuidv4(),
       client: 'Test 1',
       task: 'Testing',
       startTime: new Date(2022, 6, 30, 13, 0),
       endTime: new Date(2022, 6, 30, 14, 15),
     } as TimeEntry,
     {
-      entryUuid: uuidv4(),
+      // entryUuid: uuidv4(),
       client: 'Test 2',
       task: 'Implement something',
       startTime: new Date(2022, 6, 30, 14, 15),
       endTime: new Date(2022, 6, 30, 14, 59),
     } as TimeEntry,
     {
-      entryUuid: uuidv4(),
+      // entryUuid: uuidv4(),
       client: 'Test 1',
       task: 'Testing',
       startTime: new Date(2022, 6, 30, 14, 59),
@@ -48,47 +51,50 @@ export class MainScreenComponent implements OnInit, AfterViewInit {
   ];
 
   public filteredClients: Observable<string[]>;
-  
+
   public filteredTasks: Observable<string[]>;
 
   public taskRunning: boolean = false;
- 
+
   public taskRunningUuid: string = '';
-  
+
   public inputClient = new FormControl('');
-  
+
   public inputTask = new FormControl('');
 
-  constructor() { 
+  constructor() {
+    this.entries.forEach((e) => {
+      e.entryUuid = uuidv4();
+    });
     this.filteredClients = of(this.clients);
     this.filteredTasks = of(this.tasks);
   }
 
   ngOnInit(): void {
+    const self = this;
   }
 
   ngAfterViewInit(): void {
     this.filteredClients = this.inputClient.valueChanges.pipe(
       startWith(''),
-      map(value => this._filterClients(value || '')),
+      map((value) => this.filterClients(value || '')),
     );
-    
+
     this.filteredTasks = this.inputClient.valueChanges.pipe(
       startWith(''),
-      map(value => this._filterTasks(value || '')),
+      map((value) => this.filterTasks(value || '')),
     );
-
   }
 
-  private _filterClients(value: string): string[] {
+  private filterClients(value: string): string[] {
     const filterValue = value.toLowerCase();
-    const ret = this.clients.filter(client => client.toLowerCase().includes(filterValue));
+    const ret = this.clients.filter((client) => client.toLowerCase().includes(filterValue));
     return ret;
   }
-  
-  private _filterTasks(value: string): string[] {
+
+  private filterTasks(value: string): string[] {
     const filterValue = value.toLowerCase();
-    const ret = this.tasks.filter(client => client.toLowerCase().includes(filterValue));
+    const ret = this.tasks.filter((task) => task.toLowerCase().includes(filterValue));
     return ret;
   }
 
@@ -138,16 +144,16 @@ export class MainScreenComponent implements OnInit, AfterViewInit {
       this.endTask();
     }
     const t = this.entries.find((e) => e.entryUuid === entryUuid)!;
-    let newEntry: TimeEntry = {
+    const newEntry: TimeEntry = {
+      entryUuid: uuidv4(),
       task: t.task,
       client: t.client,
       startTime: new Date(),
       endTime: null,
     } as TimeEntry;
-    newEntry.entryUuid = uuidv4();
     this.entries.push(newEntry);
-    this.taskRunning = true;
     this.taskRunningUuid = newEntry.entryUuid;
+    this.taskRunning = true;
     this.inputClient.setValue(t.client);
     this.inputTask.setValue(t.task);
   }
@@ -173,28 +179,34 @@ export class MainScreenComponent implements OnInit, AfterViewInit {
   }
 
   get sortedEntries(): TimeEntryLinked[] {
+    // console.log('sorted entries running');
     const tmpEntries = _.orderBy(this.entries, ['startTime'], ['desc']);
-    let ret: TimeEntryLinked[] = [];
+    const ret: TimeEntryLinked[] = [];
     tmpEntries.forEach((e) => {
       const ne = e as TimeEntryLinked;
+      ne.parentEntryUuid = null;
       ret.push(ne);
-
     });
 
+    /* eslint no-param-reassign: ["error", { "props": false }] */
     ret.forEach((e) => {
-      const dupes = ret.filter((te) => (
-        te.startTime < e.startTime
-        &&
-        te.client === e.client
-        &&
-        te.task === e.task
-      ));
-      if (dupes) {
-        dupes.forEach((de) => {
+      ret
+        .filter(
+          (te) => te.startTime < e.startTime
+            && te.client === e.client
+            && te.task === e.task
+            && te.parentEntryUuid == null,
+        )
+        .forEach((de) => {
           de.parentEntryUuid = e.entryUuid;
         });
-      }
-    })
+    });
     return ret;
   }
+
+  public dumpDebug(): void {
+    console.log(this.sortedEntries);
+  }
 }
+
+export default MainScreenComponent;
