@@ -193,6 +193,9 @@ export class MainScreenComponent implements OnInit, AfterViewInit {
       ret
         .filter(
           (te) => te.startTime < e.startTime
+            && te.startTime.getFullYear() === e.startTime.getFullYear()
+            && te.startTime.getMonth() === e.startTime.getMonth()
+            && te.startTime.getDay() === e.startTime.getDay()
             && te.client === e.client
             && te.task === e.task
             && te.parentEntryUuid == null,
