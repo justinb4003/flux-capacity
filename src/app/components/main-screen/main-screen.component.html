@@ -70,7 +70,8 @@
                 </div>
             </mat-card-content>
             <mat-card-actions>
-                <button mat-icon-button>
+                <button mat-icon-button
+                    [disabled]="te.entryUuid === this.taskRunningUuid">
                     <mat-icon
                         (click)="startEntry($event, te.entryUuid)">play_circle</mat-icon>
                 </button>
